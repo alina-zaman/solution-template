@@ -149,9 +149,10 @@ class TigerITDatabaseDilemma {
     public TigerITDatabaseDilemma(){
         Table[] DatabaseTable=new Table[11];
         //Scanner sc=new Scanner(System.in);
+        IOHelper sc = new IOHelper();
         int testCase,numberOfTable,i,j,k,c,numberOfColumn,numberOfRecord,queryNumber,q,count,firstTable=0,secondTable=0;
         String query,shortTableName="",joinColumn1,joinColumn2;
-        IOHelper sc = new IOHelper();
+        
         testCase=sc.nextInt();
         
         
