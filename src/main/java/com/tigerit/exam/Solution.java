@@ -6,6 +6,8 @@ import static com.tigerit.exam.IO.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Arrays;
+import java.util.Comparator;
 
 /**
  *
@@ -17,6 +19,26 @@ class Table{
     int numberOfRecord;
     String columnName[];
     int columnValue[][]; // 2d array contains: ([n][m]) mth value of nth record where m is the columNnumber
+}
+class DatabaseTableRow{
+    int tableColumn[];
+    int numberOfColumn;
+    DatabaseTableRow(int number){
+       tableColumn=new int[number];
+    }
+    
+}
+class DatabaseTableRowComparator implements Comparator<DatabaseTableRow>{
+
+    @Override
+    public int compare(DatabaseTableRow o1, DatabaseTableRow o2) {
+        for(int i = 1;i<=o1.numberOfColumn;i++){
+            if(o1.tableColumn[i]<o2.tableColumn[i]) return -1;
+            if(o1.tableColumn[i]>o2.tableColumn[i]) return 1;
+        }
+        return 0;
+    }
+    
 }
 class ShowTable{
     int printAllColumn;
@@ -72,41 +94,50 @@ class ShowTable{
             
         }
         System.out.println();
+        
+        DatabaseTableRow TableRow[]=new DatabaseTableRow[numberOfJoinEntry];
         // printing the value of join entry
         for(int i=0;i<numberOfJoinEntry;i++){
+            TableRow[i]=new DatabaseTableRow(FirstTable.numberOfColumn+SecondTable.numberOfColumn+1);
             if(printAllColumn==1){ // if select * then print the value from all column
                 for(int j=1;j<=FirstTable.numberOfColumn;j++){  
-                    if(j==1)
-                        System.out.print(FirstTable.columnValue[firstTableJoinEntry[i]][j]);  //printing the matched row from first table
-                    else
-                        System.out.print(" "+FirstTable.columnValue[firstTableJoinEntry[i]][j]);
+                    TableRow[i].tableColumn[j]=FirstTable.columnValue[firstTableJoinEntry[i]][j];
                 }
-                for(int j=1;j<=SecondTable.numberOfColumn;j++){  
-                    System.out.print(" "+SecondTable.columnValue[secondTableJoinEntry[i]][j]);  //printing the matched row from second table          
+                for(int j=1;j<=SecondTable.numberOfColumn;j++){ 
+                    TableRow[i].tableColumn[j+FirstTable.numberOfColumn]=SecondTable.columnValue[secondTableJoinEntry[i]][j];
                 }
+                TableRow[i].numberOfColumn=FirstTable.numberOfColumn+SecondTable.numberOfColumn;
             }
             else{
                 int c=0;
                 for(int j=1;j<=FirstTable.numberOfColumn;j++){
+                    
                     if(FirstTable.columnName[j].equals(selectedColumnListFromFirstTable[c])){
-                         System.out.print(FirstTable.columnValue[firstTableJoinEntry[i]][j]+" "); //printing the selected column value from matched row from first table
-                         c++;
+                         TableRow[i].tableColumn[++c]=FirstTable.columnValue[firstTableJoinEntry[i]][j];
+                         
                     }
                 }
-                    c=0;
+                int cc = c;
+                c=0;
+                    
                 for(int j=1;j<=SecondTable.numberOfColumn;j++){    
                     if(SecondTable.columnName[j].equals(selectedColumnListFromSecondTable[c])){
-                        if(c==0)
-                         System.out.print(SecondTable.columnValue[secondTableJoinEntry[i]][j]);  //printing the selected column value from matched row from second table 
-                        else
-                            System.out.print(" "+SecondTable.columnValue[secondTableJoinEntry[i]][j]);
+                        TableRow[i].tableColumn[++cc]=SecondTable.columnValue[secondTableJoinEntry[i]][j];
                          c++;
                     }
-                    
                 }
-                   
+                
+               TableRow[i].numberOfColumn=cc;    
             }
-         System.out.println();
+        }
+        Arrays.sort(TableRow,new DatabaseTableRowComparator());
+        for(DatabaseTableRow t: TableRow){
+            for(int i=1;i<=t.numberOfColumn;i++){
+                if(i>1) 
+                    System.out.print(" ");
+                System.out.print(t.tableColumn[i]);
+            }
+            System.out.println();
         }
     }
 }
@@ -149,10 +180,9 @@ class TigerITDatabaseDilemma {
     public TigerITDatabaseDilemma(){
         Table[] DatabaseTable=new Table[11];
         //Scanner sc=new Scanner(System.in);
-        IOHelper sc = new IOHelper();
         int testCase,numberOfTable,i,j,k,c,numberOfColumn,numberOfRecord,queryNumber,q,count,firstTable=0,secondTable=0;
         String query,shortTableName="",joinColumn1,joinColumn2;
-        
+        IOHelper sc = new IOHelper();
         testCase=sc.nextInt();
         
         
